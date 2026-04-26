@@ -1,5 +1,7 @@
 # TableFlow
 
+Try it out: [https://table-flow-table.vercel.app/](https://table-flow-table.vercel.app/)
+
 TableFlow helps hosts plan and run structured speed-networking sessions without spreadsheet chaos.  
 Generate table rotations quickly, reduce repeated pairings, and run rounds live with a clean host interface.
 
