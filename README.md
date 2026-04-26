@@ -74,16 +74,3 @@ TableFlow is built for hosts who need:
 - PapaParse
 - TypeScript
 
-## Current Scope
-
-Included in this version:
-- Full setup -> plan -> live flow
-- Scheduling with repeat avoidance
-- Repeated-pair explainability modal
-- Timer-enabled live presentation mode
-
-Out of scope for now:
-- Authentication
-- Saved events/history
-- Export/share workflows
-- Mobile-first optimization
