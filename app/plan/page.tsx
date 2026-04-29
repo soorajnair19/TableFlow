@@ -161,7 +161,6 @@ export default function PlanPage() {
 
         {currentRound ? (
           <div className="space-y-3">
-            <h2 className="text-xl font-semibold">Round {currentRound.index}</h2>
             <RoundView
               round={currentRound}
               attendees={config.attendees}
