@@ -29,7 +29,7 @@ export default function LivePage() {
         <Container>
           <Card>
             <p className="text-sm text-neutral-600">Live mode needs a generated plan first.</p>
-            <Link href="/" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline">
+            <Link href="/generate" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline">
               Back to setup
             </Link>
           </Card>
@@ -45,7 +45,7 @@ export default function LivePage() {
         title={`Run Round ${currentRound.index}`}
         subtitle="Present table groups live and move between rounds in real time."
         actions={
-          <Link href="/">
+          <Link href="/generate">
             <Button variant="secondary" className="gap-2">
               <Settings01 className="size-4" />
               Configure

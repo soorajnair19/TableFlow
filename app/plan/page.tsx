@@ -70,7 +70,7 @@ export default function PlanPage() {
         <Container>
           <Card>
             <p className="text-sm text-neutral-600">No plan generated yet.</p>
-            <Link href="/" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline">
+            <Link href="/generate" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline">
               Back to setup
             </Link>
           </Card>
@@ -87,7 +87,7 @@ export default function PlanPage() {
         subtitle="Validate repeated pairings and confirm the plan before going live."
         actions={
           <>
-            <Link href="/">
+            <Link href="/generate">
               <Button variant="secondary" className="gap-2">
                 <Settings01 className="size-4" />
                 Configure
