@@ -1,10 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { Settings01 } from "@untitledui/icons";
 import { useEffect, useMemo, useState } from "react";
 import { RoundView } from "@/components/round-view";
-import { AppShell, Button, Card, Container, StepHeader } from "@/components/ui";
+import { AppShell, Button, Card, Container } from "@/components/ui";
 import { useSessionStore } from "@/store/session";
 
 function formatTimer(seconds: number) {
@@ -40,21 +39,7 @@ export default function LivePage() {
 
   return (
     <AppShell>
-      <StepHeader
-        step="Step 3: Live"
-        title={`Run Round ${currentRound.index}`}
-        subtitle="Present table groups live and move between rounds in real time."
-        actions={
-          <Link href="/generate">
-            <Button variant="secondary" className="gap-2">
-              <Settings01 className="size-4" />
-              Configure
-            </Button>
-          </Link>
-        }
-      />
-      <Container className="space-y-5 pt-36 pb-6">
-
+      <Container className="space-y-5 pt-6 pb-6">
         <Card className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex flex-wrap gap-2">
             {plan.rounds.map((round, idx) => (

@@ -1,11 +1,11 @@
 "use client";
 
-import { InfoCircle, Settings01, XClose } from "@untitledui/icons";
+import { InfoCircle, XClose } from "@untitledui/icons";
 import Link from "next/link";
 import { useMemo, useState } from "react";
 import { RoundView } from "@/components/round-view";
 import { AppShell, Button, Card, Container, StepHeader } from "@/components/ui";
-import { generateSchedule } from "@/lib/scheduler";
+import { generateSchedule, moveAttendeeInRound, recomputeRepeatedPairs, swapAttendeesInRound } from "@/lib/scheduler";
 import { useSessionStore } from "@/store/session";
 
 type RepeatedPairDetail = {
@@ -19,11 +19,17 @@ export default function PlanPage() {
   const config = useSessionStore((s) => s.config);
   const plan = useSessionStore((s) => s.plan);
   const setPlan = useSessionStore((s) => s.setPlan);
+  const updatePlan = useSessionStore((s) => s.updatePlan);
   const currentRoundIndex = useSessionStore((s) => s.currentRoundIndex);
   const setRound = useSessionStore((s) => s.setRound);
   const [showRepeatModal, setShowRepeatModal] = useState(false);
+  const [dragError, setDragError] = useState<string | null>(null);
 
   const currentRound = plan?.rounds[currentRoundIndex];
+  const tableCapacities = useMemo(
+    () => Object.fromEntries((config?.tables ?? []).map((table) => [table.id, table.capacity])),
+    [config?.tables]
+  );
   const repeatedPairDetails = useMemo<RepeatedPairDetail[]>(() => {
     if (!plan) return [];
     const attendeeNameById = new Map(config?.attendees.map((attendee) => [attendee.id, attendee.name]) ?? []);
@@ -79,27 +85,45 @@ export default function PlanPage() {
     );
   }
 
+  const onMoveAttendee = (payload: { attendeeId: string; fromTableId: string; toTableId: string; targetAttendeeId?: string }) => {
+    try {
+      setDragError(null);
+      const updatedRound = payload.targetAttendeeId
+        ? swapAttendeesInRound({
+            round: plan.rounds[currentRoundIndex],
+            sourceAttendeeId: payload.attendeeId,
+            sourceTableId: payload.fromTableId,
+            targetAttendeeId: payload.targetAttendeeId,
+            targetTableId: payload.toTableId,
+            tableCapacities,
+          })
+        : moveAttendeeInRound({
+            round: plan.rounds[currentRoundIndex],
+            attendeeId: payload.attendeeId,
+            fromTableId: payload.fromTableId,
+            toTableId: payload.toTableId,
+            tableCapacities,
+          });
+      const updatedRounds = plan.rounds.map((round, idx) => (idx === currentRoundIndex ? updatedRound : round));
+      const recomputed = recomputeRepeatedPairs(updatedRounds);
+      updatePlan(recomputed);
+    } catch (error) {
+      setDragError(error instanceof Error ? error.message : "Could not move attendee.");
+    }
+  };
+
   return (
     <AppShell>
       <StepHeader
-        step="Step 2: Plan Review"
+        step="Step 2: Review"
         title="Review generated rounds"
         subtitle="Validate repeated pairings and confirm the plan before going live."
-        actions={
-          <>
-            <Link href="/generate">
-              <Button variant="secondary" className="gap-2">
-                <Settings01 className="size-4" />
-                Configure
-              </Button>
-            </Link>
-            <Link href="/live">
-              <Button onClick={() => setRound(0)}>Go Live</Button>
-            </Link>
-          </>
-        }
+        stepperItems={[
+          { label: "Step 1: Configure", href: "/generate", state: "completed" },
+          { label: "Step 2: Review", href: "/plan", state: "current" },
+        ]}
       />
-      <Container className="space-y-6 pt-36 pb-8">
+      <Container className="space-y-6 pt-44 pb-8">
 
         <Card className="space-y-3">
           <div className="flex items-center gap-1 text-sm text-neutral-600">
@@ -124,16 +148,27 @@ export default function PlanPage() {
                 </Button>
               ))}
             </div>
-            <Button variant="secondary" onClick={() => setPlan(generateSchedule(config))}>
-              Regenerate
-            </Button>
+            <div className="flex items-center gap-2">
+              <Button variant="secondary" onClick={() => setPlan(generateSchedule(config))}>
+                Regenerate
+              </Button>
+              <Link href="/live" target="_blank" rel="noopener noreferrer">
+                <Button onClick={() => setRound(0)}>Go Live</Button>
+              </Link>
+            </div>
           </div>
         </Card>
 
         {currentRound ? (
           <div className="space-y-3">
             <h2 className="text-xl font-semibold">Round {currentRound.index}</h2>
-            <RoundView round={currentRound} attendees={config.attendees} />
+            <RoundView
+              round={currentRound}
+              attendees={config.attendees}
+              onMoveAttendee={onMoveAttendee}
+              tableCapacities={tableCapacities}
+            />
+            {dragError ? <p className="text-sm text-red-600">{dragError}</p> : null}
           </div>
         ) : null}
       </Container>
