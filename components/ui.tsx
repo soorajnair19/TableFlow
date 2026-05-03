@@ -23,19 +23,17 @@ export function StepHeader({
   stepperItems?: Array<{
     label: string;
     href: string;
-    state: "completed" | "current" | "disabled";
+    state: "completed" | "current" | "available" | "disabled";
   }>;
 }) {
-  const currentStepIndex = stepperItems?.findIndex((item) => item.state === "current") ?? -1;
-
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-neutral-200 bg-neutral-50/95 backdrop-blur">
       <div className={cn(PAGE_INNER, "py-4")}>
         {stepperItems?.length ? (
-          <nav className="mb-4 flex justify-center">
-            <ol className="flex w-full max-w-3xl items-center">
+          <nav className="mb-4 w-full" aria-label="Progress">
+            <ol className="flex w-full list-none flex-row flex-wrap items-start gap-y-2 p-0">
               {stepperItems.map((item, idx) => {
-                const isDoneConnection = idx > 0 && currentStepIndex >= idx;
+                const isDoneConnection = item.state === "completed";
                 const node = (
                   <span className="inline-flex flex-col items-center gap-1.5 text-center">
                     <span
@@ -43,6 +41,8 @@ export function StepHeader({
                         "inline-flex size-7 items-center justify-center rounded-full text-xs font-semibold",
                         item.state === "completed" && "bg-green-600 text-white",
                         item.state === "current" && "bg-[#2A18EF] text-white",
+                        item.state === "available" &&
+                          "border-2 border-neutral-300 bg-white text-neutral-800 shadow-sm",
                         item.state === "disabled" && "bg-neutral-300 text-white"
                       )}
                     >
@@ -53,6 +53,7 @@ export function StepHeader({
                         "text-xs font-medium",
                         item.state === "current" && "text-[#2A18EF]",
                         item.state === "completed" && "text-neutral-700",
+                        item.state === "available" && "text-neutral-700",
                         item.state === "disabled" && "text-neutral-400"
                       )}
                     >
@@ -62,18 +63,19 @@ export function StepHeader({
                 );
 
                 return (
-                  <li key={item.href} className="flex flex-1 items-start">
-                    <div className="flex flex-1 items-start">
+                  <li key={item.href} className="flex items-start">
+                    <div className="shrink-0">
                       {item.state === "disabled" ? node : <Link href={item.href}>{node}</Link>}
-                      {idx < stepperItems.length - 1 ? (
-                        <span
-                          className={cn(
-                            "mt-3 h-0.5 flex-1 rounded-full",
-                            isDoneConnection ? "bg-[#2A18EF]" : "bg-neutral-200"
-                          )}
-                        />
-                      ) : null}
                     </div>
+                    {idx < stepperItems.length - 1 ? (
+                      <span
+                        aria-hidden
+                        className={cn(
+                          "mt-3 mx-2 h-0.5 w-10 shrink-0 rounded-full sm:mx-2.5 sm:w-12",
+                          isDoneConnection ? "bg-[#2A18EF]" : "bg-neutral-200"
+                        )}
+                      />
+                    ) : null}
                   </li>
                 );
               })}
