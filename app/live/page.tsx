@@ -28,7 +28,7 @@ export default function LivePage() {
         <Container>
           <Card>
             <p className="text-sm text-neutral-600">Live mode needs a generated plan first.</p>
-            <Link href="/generate" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline">
+            <Link href="/attendees" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline">
               Back to setup
             </Link>
           </Card>

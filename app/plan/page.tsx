@@ -76,7 +76,7 @@ export default function PlanPage() {
         <Container>
           <Card>
             <p className="text-sm text-neutral-600">No plan generated yet.</p>
-            <Link href="/generate" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline">
+            <Link href="/attendees" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline">
               Back to setup
             </Link>
           </Card>
@@ -115,12 +115,13 @@ export default function PlanPage() {
   return (
     <AppShell>
       <StepHeader
-        step="Step 2: Review"
+        step="Step 3: Review"
         title="Review generated rounds"
         subtitle="Validate repeated pairings and confirm the plan before going live."
         stepperItems={[
-          { label: "Step 1: Configure", href: "/generate", state: "completed" },
-          { label: "Step 2: Review", href: "/plan", state: "current" },
+          { label: "Step 1: Add Attendees", href: "/attendees", state: "completed" },
+          { label: "Step 2: Setup Session", href: "/session", state: "completed" },
+          { label: "Step 3: Review", href: "/plan", state: "current" },
         ]}
       />
       <Container className="space-y-6 pt-44 pb-8">

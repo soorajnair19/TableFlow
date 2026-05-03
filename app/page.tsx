@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { AppShell, Button } from "@/components/ui";
+import { AppShell, Button, PAGE_INNER } from "@/components/ui";
+import { cn } from "@/lib/utils";
 
 export default function Home() {
   return (
@@ -7,7 +8,7 @@ export default function Home() {
       <main className="relative flex h-screen overflow-hidden">
         <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(circle_at_15%_80%,rgba(42,24,239,0.16),transparent_45%),radial-gradient(circle_at_85%_20%,rgba(0,28,181,0.12),transparent_40%)]" />
 
-        <section className="relative z-10 mx-auto flex w-full max-w-6xl flex-col items-center justify-center px-6 text-center">
+        <section className={cn(PAGE_INNER, "relative z-10 flex flex-col items-center justify-center text-center")}>
           <p className="mb-5 rounded-full border border-neutral-200 bg-white px-3 py-1 text-xs font-semibold uppercase tracking-[0.14em] text-neutral-700">
             TableFlow
           </p>
@@ -22,7 +23,7 @@ export default function Home() {
             So you can focus on hosting, not juggling sheets.
           </p>
           <div className="mt-10">
-            <Link href="/generate">
+            <Link href="/attendees">
               <Button className="h-12 rounded-2xl px-8 text-base">Get Started</Button>
             </Link>
           </div>

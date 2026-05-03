@@ -2,109 +2,50 @@
 
 import { InfoCircle, Upload01, XClose } from "@untitledui/icons";
 import Papa from "papaparse";
-import { useMemo, useState } from "react";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 import { generateSchedule } from "@/lib/scheduler";
-import { Attendee, EventConfig, RepeatAvoidance, Table } from "@/lib/types";
+import { EventConfig, Table } from "@/lib/types";
 import { uid } from "@/lib/utils";
 import { useSessionStore } from "@/store/session";
 import { Button, Card, Input, SectionTitle, Textarea } from "@/components/ui";
 
-const DEFAULT_TABLE_COUNT = 6;
-const DEFAULT_ROUNDS = 4;
+function ensureCustomTables(count: number, prev: Table[]): Table[] {
+  const safeCount = Math.max(1, count);
+  if (prev.length === safeCount) return prev;
+  if (prev.length > safeCount) return prev.slice(0, safeCount);
+  const additions = Array.from({ length: safeCount - prev.length }, (_, i) => ({
+    id: uid(),
+    name: `Table ${prev.length + i + 1}`,
+    capacity: 6,
+  }));
+  return [...prev, ...additions];
+}
 
-export function SetupForm() {
+export function AttendeesStep() {
   const router = useRouter();
   const config = useSessionStore((s) => s.config);
-  const setConfig = useSessionStore((s) => s.setConfig);
-  const setPlan = useSessionStore((s) => s.setPlan);
+  const setupAttendees = useSessionStore((s) => s.setupAttendees);
+  const setSetupAttendees = useSessionStore((s) => s.setSetupAttendees);
 
   const [manualName, setManualName] = useState("");
   const [pasteNames, setPasteNames] = useState("");
-  const [attendees, setAttendees] = useState<Attendee[]>(config?.attendees ?? []);
-  const [rounds, setRounds] = useState(config?.rounds ?? DEFAULT_ROUNDS);
-  const [durationMinutes, setDurationMinutes] = useState<number | "">(config?.durationMinutes ?? 12);
-  const [repeatAvoidance, setRepeatAvoidance] = useState<RepeatAvoidance>(config?.repeatAvoidance ?? "medium");
-  const [useEqual, setUseEqual] = useState(config?.uiPreferences?.useEqual ?? true);
-  const [tableCount, setTableCount] = useState(config?.uiPreferences?.tableCount ?? config?.tables.length ?? DEFAULT_TABLE_COUNT);
-  const [customTables, setCustomTables] = useState<Table[]>(
-    config?.uiPreferences?.customTables ??
-      config?.tables ??
-      Array.from({ length: DEFAULT_TABLE_COUNT }, (_, i) => ({
-        id: uid(),
-        name: `Table ${i + 1}`,
-        capacity: 6,
-      }))
-  );
   const [error, setError] = useState<string | null>(null);
 
-  const syncCustomTables = (nextCount: number) => {
-    const safeCount = Math.max(1, nextCount);
-    setCustomTables((prev) => {
-      if (prev.length === safeCount) return prev;
-      if (prev.length > safeCount) return prev.slice(0, safeCount);
-      const additions = Array.from({ length: safeCount - prev.length }, (_, i) => ({
-        id: uid(),
-        name: `Table ${prev.length + i + 1}`,
-        capacity: 6,
-      }));
-      return [...prev, ...additions];
-    });
-  };
-
-  const computedTables = useMemo(() => {
-    if (!useEqual) return customTables;
-    if (attendees.length === 0 || tableCount < 1) {
-      return Array.from({ length: Math.max(tableCount, 1) }, (_, i) => ({
-        id: uid(),
-        name: `Table ${i + 1}`,
-        capacity: 1,
-      }));
+  useEffect(() => {
+    if (setupAttendees.length > 0) return;
+    if (config?.attendees?.length) {
+      setSetupAttendees(config.attendees);
     }
-    const base = Math.floor(attendees.length / tableCount);
-    const extra = attendees.length % tableCount;
-    return Array.from({ length: tableCount }, (_, i) => ({
-      id: uid(),
-      name: `Table ${i + 1}`,
-      capacity: base + (i < extra ? 1 : 0),
-    }));
-  }, [attendees.length, customTables, tableCount, useEqual]);
+  }, [config?.attendees, setSetupAttendees, setupAttendees.length]);
 
-  const equalDistributionLine = useMemo(() => {
-    const safeTables = Math.max(1, tableCount);
-    const attendeeTotal = attendees.length;
-    const base = Math.floor(attendeeTotal / safeTables);
-    const max = Math.ceil(attendeeTotal / safeTables);
-
-    if (attendeeTotal === 0) {
-      return (
-        <p className="text-sm text-neutral-600">
-          Add attendees to preview equal distribution across <strong>{safeTables}</strong> tables.
-        </p>
-      );
-    }
-
-    if (attendeeTotal % safeTables === 0) {
-      return (
-        <p className="text-sm text-neutral-600">
-          <strong>{attendeeTotal}</strong> attendees equally divided into <strong>{safeTables}</strong> tables:{" "}
-          <strong>{base}</strong> attendees per table.
-        </p>
-      );
-    }
-
-    return (
-      <p className="text-sm text-neutral-600">
-        <strong>{attendeeTotal}</strong> attendees equally divided into <strong>{safeTables}</strong> tables:{" "}
-        <strong>~{base}-{max}</strong> attendees per table.
-      </p>
-    );
-  }, [attendees.length, tableCount]);
+  const attendees = setupAttendees;
 
   const addAttendee = (name: string) => {
     const trimmed = name.trim();
     if (!trimmed) return;
-    setAttendees((prev) => [...prev, { id: uid(), name: trimmed }]);
+    setSetupAttendees([...attendees, { id: uid(), name: trimmed }]);
   };
 
   const parseAndAddNames = (raw: string) => {
@@ -131,36 +72,10 @@ export function SetupForm() {
     });
   };
 
-  const onGenerate = () => {
-    try {
-      setError(null);
-      const tables = useEqual ? computedTables : customTables;
-      const config: EventConfig = {
-        attendees,
-        tables,
-        rounds,
-        durationMinutes: durationMinutes === "" ? undefined : durationMinutes,
-        repeatAvoidance,
-        uiPreferences: {
-          useEqual,
-          tableCount,
-          customTables,
-        },
-      };
-      const plan = generateSchedule(config);
-      setConfig(config);
-      setPlan(plan);
-      router.push("/plan");
-    } catch (e) {
-      setError(e instanceof Error ? e.message : "Could not generate session plan.");
-    }
-  };
-
   return (
-    <div className="grid gap-6 lg:grid-cols-2">
-      <Card>
-        <SectionTitle title={`Attendees (${attendees.length})`} subtitle="CSV upload, paste names, or add manually." />
-        <div className="space-y-3">
+    <Card>
+      <SectionTitle title={`Attendees (${attendees.length})`} subtitle="CSV upload, paste names, or add manually." />
+      <div className="space-y-3">
           <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 px-4 py-6 text-sm text-neutral-600 hover:bg-neutral-50">
             <Upload01 className="size-4" />
             Upload CSV
@@ -209,7 +124,7 @@ export function SetupForm() {
               </p>
               <button
                 type="button"
-                onClick={() => setAttendees([])}
+                onClick={() => setSetupAttendees([])}
                 disabled={attendees.length === 0}
                 className="text-xs font-medium text-neutral-500 underline-offset-2 transition hover:text-neutral-800 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
               >
@@ -225,7 +140,7 @@ export function SetupForm() {
                   <span>{attendee.name}</span>
                   <button
                     type="button"
-                    onClick={() => setAttendees((prev) => prev.filter((a) => a.id !== attendee.id))}
+                    onClick={() => setSetupAttendees(attendees.filter((a) => a.id !== attendee.id))}
                     className="rounded-full p-0.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800"
                     aria-label={`Remove ${attendee.name}`}
                     title={`Remove ${attendee.name}`}
@@ -236,12 +151,138 @@ export function SetupForm() {
               ))}
             </div>
           </div>
-        </div>
-      </Card>
+          {error ? <p className="text-sm text-red-600">{error}</p> : null}
+          <div className="flex flex-wrap justify-between gap-2 pt-2">
+            <Link href="/">
+              <Button variant="secondary" type="button">
+                Back
+              </Button>
+            </Link>
+            <Button
+              type="button"
+              disabled={attendees.length === 0}
+              onClick={() => router.push("/session")}
+            >
+              Continue
+            </Button>
+          </div>
+      </div>
+    </Card>
+  );
+}
 
-      <Card>
-        <SectionTitle title="Session Setup" subtitle="Configure tables, rounds, and repeat control." />
-        <div className="space-y-4">
+export function SessionStep() {
+  const router = useRouter();
+  const config = useSessionStore((s) => s.config);
+  const setupAttendees = useSessionStore((s) => s.setupAttendees);
+  const setupSession = useSessionStore((s) => s.setupSession);
+  const setSetupSession = useSessionStore((s) => s.setSetupSession);
+  const setConfig = useSessionStore((s) => s.setConfig);
+  const setPlan = useSessionStore((s) => s.setPlan);
+
+  const [error, setError] = useState<string | null>(null);
+
+  const {
+    rounds,
+    durationMinutes,
+    repeatAvoidance,
+    useEqual,
+    tableCount,
+    customTables,
+  } = setupSession;
+
+  const attendees = setupAttendees.length > 0 ? setupAttendees : (config?.attendees ?? []);
+
+  const syncCustomTables = (nextCount: number) => {
+    const prev = useSessionStore.getState().setupSession.customTables;
+    setSetupSession({ customTables: ensureCustomTables(nextCount, prev) });
+  };
+
+  const equalDistributionTables = useMemo(() => {
+    if (attendees.length === 0 || tableCount < 1) {
+      return Array.from({ length: Math.max(tableCount, 1) }, (_, i) => ({
+        id: uid(),
+        name: `Table ${i + 1}`,
+        capacity: 1,
+      }));
+    }
+    const base = Math.floor(attendees.length / tableCount);
+    const extra = attendees.length % tableCount;
+    return Array.from({ length: tableCount }, (_, i) => ({
+      id: uid(),
+      name: `Table ${i + 1}`,
+      capacity: base + (i < extra ? 1 : 0),
+    }));
+  }, [attendees.length, tableCount]);
+
+  const computedTables = useMemo(
+    () => (useEqual ? equalDistributionTables : customTables),
+    [customTables, equalDistributionTables, useEqual]
+  );
+
+  const equalDistributionLine = useMemo(() => {
+    const safeTables = Math.max(1, tableCount);
+    const attendeeTotal = attendees.length;
+    const base = Math.floor(attendeeTotal / safeTables);
+    const max = Math.ceil(attendeeTotal / safeTables);
+
+    if (attendeeTotal === 0) {
+      return (
+        <p className="text-sm text-neutral-600">
+          Add attendees to preview equal distribution across <strong>{safeTables}</strong> tables.
+        </p>
+      );
+    }
+
+    if (attendeeTotal % safeTables === 0) {
+      return (
+        <p className="text-sm text-neutral-600">
+          <strong>{attendeeTotal}</strong> attendees equally divided into <strong>{safeTables}</strong> tables:{" "}
+          <strong>{base}</strong> attendees per table.
+        </p>
+      );
+    }
+
+    return (
+      <p className="text-sm text-neutral-600">
+        <strong>{attendeeTotal}</strong> attendees equally divided into <strong>{safeTables}</strong> tables:{" "}
+        <strong>~{base}-{max}</strong> attendees per table.
+      </p>
+    );
+  }, [attendees.length, tableCount]);
+
+  const onGenerate = () => {
+    try {
+      setError(null);
+      if (attendees.length === 0) {
+        throw new Error("Add at least one attendee in the previous step.");
+      }
+      const tables = useEqual ? computedTables : customTables;
+      const eventConfig: EventConfig = {
+        attendees,
+        tables,
+        rounds,
+        durationMinutes: durationMinutes === "" ? undefined : durationMinutes,
+        repeatAvoidance,
+        uiPreferences: {
+          useEqual,
+          tableCount,
+          customTables,
+        },
+      };
+      const plan = generateSchedule(eventConfig);
+      setConfig(eventConfig);
+      setPlan(plan);
+      router.push("/plan");
+    } catch (e) {
+      setError(e instanceof Error ? e.message : "Could not generate session plan.");
+    }
+  };
+
+  return (
+    <Card>
+      <SectionTitle title="Session Setup" subtitle="Configure tables, rounds, and repeat control." />
+      <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div>
               <p className="mb-1 text-sm text-neutral-600">Tables</p>
@@ -252,14 +293,20 @@ export function SetupForm() {
                 value={tableCount}
                 onChange={(e) => {
                   const nextCount = Number(e.target.value) || 1;
-                  setTableCount(nextCount);
+                  setSetupSession({ tableCount: nextCount });
                   syncCustomTables(nextCount);
                 }}
               />
             </div>
             <div>
               <p className="mb-1 text-sm text-neutral-600">Networking Rounds</p>
-              <Input type="number" min={1} max={20} value={rounds} onChange={(e) => setRounds(Number(e.target.value) || 1)} />
+              <Input
+                type="number"
+                min={1}
+                max={20}
+                value={rounds}
+                onChange={(e) => setSetupSession({ rounds: Number(e.target.value) || 1 })}
+              />
             </div>
             <div>
               <p className="mb-1 text-sm text-neutral-600">Round Duration (min)</p>
@@ -267,7 +314,7 @@ export function SetupForm() {
                 type="number"
                 min={1}
                 value={durationMinutes}
-                onChange={(e) => setDurationMinutes(e.target.value ? Number(e.target.value) : "")}
+                onChange={(e) => setSetupSession({ durationMinutes: e.target.value ? Number(e.target.value) : "" })}
               />
             </div>
           </div>
@@ -299,7 +346,7 @@ export function SetupForm() {
                     name="repeat-avoidance"
                     value={level}
                     checked={repeatAvoidance === level}
-                    onChange={() => setRepeatAvoidance(level)}
+                    onChange={() => setSetupSession({ repeatAvoidance: level })}
                     className="size-4 accent-[#001CB5]"
                   />
                   <span className="capitalize">{level}</span>
@@ -331,7 +378,7 @@ export function SetupForm() {
                   name="distribution-mode"
                   value="equal"
                   checked={useEqual}
-                  onChange={() => setUseEqual(true)}
+                  onChange={() => setSetupSession({ useEqual: true })}
                   className="size-4 accent-[#001CB5]"
                 />
                 <span>Equal distribution</span>
@@ -342,7 +389,12 @@ export function SetupForm() {
                   name="distribution-mode"
                   value="custom"
                   checked={!useEqual}
-                  onChange={() => setUseEqual(false)}
+                  onChange={() => {
+                    const prev = useSessionStore.getState().setupSession.customTables;
+                    const nextCustom =
+                      prev.length > 0 ? prev : ensureCustomTables(tableCount, []);
+                    setSetupSession({ useEqual: false, customTables: nextCustom });
+                  }}
                   className="size-4 accent-[#001CB5]"
                 />
                 <span>Custom capacities</span>
@@ -357,22 +409,22 @@ export function SetupForm() {
                     <Input
                       className="col-span-4"
                       value={table.name}
-                      onChange={(e) =>
-                        setCustomTables((prev) =>
-                          prev.map((t, i) => (i === idx ? { ...t, name: e.target.value } : t))
-                        )
-                      }
+                      onChange={(e) => {
+                        const next = customTables.map((t, i) => (i === idx ? { ...t, name: e.target.value } : t));
+                        setSetupSession({ customTables: next });
+                      }}
                     />
                     <Input
                       className="col-span-2"
                       type="number"
                       min={1}
                       value={table.capacity}
-                      onChange={(e) =>
-                        setCustomTables((prev) =>
-                          prev.map((t, i) => (i === idx ? { ...t, capacity: Number(e.target.value) || 1 } : t))
-                        )
-                      }
+                      onChange={(e) => {
+                        const next = customTables.map((t, i) =>
+                          i === idx ? { ...t, capacity: Number(e.target.value) || 1 } : t
+                        );
+                        setSetupSession({ customTables: next });
+                      }}
                     />
                   </div>
                 ))}
@@ -381,11 +433,15 @@ export function SetupForm() {
           </div>
 
           {error ? <p className="text-sm text-red-600">{error}</p> : null}
-          <Button className="w-full" onClick={onGenerate}>
-            Generate Plan
-          </Button>
-        </div>
-      </Card>
-    </div>
+          <div className="flex flex-wrap justify-between gap-2 pt-2">
+            <Button variant="secondary" type="button" onClick={() => router.push("/attendees")}>
+              Back
+            </Button>
+            <Button className="min-w-40" type="button" onClick={onGenerate}>
+              Generate Plan
+            </Button>
+          </div>
+      </div>
+    </Card>
   );
 }

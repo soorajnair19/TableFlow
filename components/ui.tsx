@@ -2,6 +2,9 @@ import { ButtonHTMLAttributes, HTMLAttributes, InputHTMLAttributes, PropsWithChi
 import Link from "next/link";
 import { cn } from "@/lib/utils";
 
+/** Shared horizontal bounds for fixed header and scrollable main: same max width + padding everywhere. */
+export const PAGE_INNER = "mx-auto w-full max-w-6xl px-6";
+
 export function AppShell({ children }: PropsWithChildren) {
   return <div className="min-h-screen bg-neutral-50 text-neutral-900">{children}</div>;
 }
@@ -27,10 +30,10 @@ export function StepHeader({
 
   return (
     <header className="fixed inset-x-0 top-0 z-40 border-b border-neutral-200 bg-neutral-50/95 backdrop-blur">
-      <div className="mx-auto w-full max-w-6xl px-6 py-4">
+      <div className={cn(PAGE_INNER, "py-4")}>
         {stepperItems?.length ? (
-          <nav className="mb-4">
-            <ol className="flex items-center">
+          <nav className="mb-4 flex justify-center">
+            <ol className="flex w-full max-w-3xl items-center">
               {stepperItems.map((item, idx) => {
                 const isDoneConnection = idx > 0 && currentStepIndex >= idx;
                 const node = (
@@ -92,7 +95,7 @@ export function StepHeader({
 }
 
 export function Container({ children, className }: PropsWithChildren<{ className?: string }>) {
-  return <div className={cn("mx-auto w-full max-w-6xl px-6 py-8", className)}>{children}</div>;
+  return <div className={cn(PAGE_INNER, "py-8", className)}>{children}</div>;
 }
 
 export function Card({ children, className, ...props }: PropsWithChildren<{ className?: string }> & HTMLAttributes<HTMLDivElement>) {
