@@ -21,7 +21,7 @@ The setup wizard is three steps with a shared header and consistent page width:
 
 1. **Step 1: Add Attendees** (`/attendees`) — CSV upload, paste names, or add people one at a time.  
 2. **Step 2: Setup Session** (`/session`) — tables, rounds, duration, repeat avoidance, and distribution (equal or custom capacities).  
-3. **Step 3: Review** (`/plan`) — inspect generated rounds, repeated-pair summary, manual seat tweaks (drag and drop), regenerate if needed, then **Go Live** (opens live mode in a new tab).
+3. **Step 3: Review** (`/plan`) — inspect generated rounds, repeated-pair summary, regenerate if needed, then **Go Live** (opens live mode in a new tab).
 
 Legacy URL **`/generate`** redirects to **`/attendees`**.
 
@@ -35,7 +35,7 @@ Legacy URL **`/generate`** redirects to **`/attendees`**.
 - Add attendees manually
 - Remove individual attendees or clear all
 
-### 2) Session Configuration (Step 2)
+### 2) Setup Session (Step 2)
 - Set number of tables, networking rounds, and round duration
 - Choose repeat-avoidance level (`low`, `medium`, `high`)
 - Select distribution mode:
@@ -56,7 +56,6 @@ Legacy URL **`/generate`** redirects to **`/attendees`**.
   - Repetition (`Round X - Table Y`)
   - Attendee Pair
   - Met Before (`Round A - Table B`)
-- Drag-and-drop edits in the round view; metrics update after moves
 - Regenerate plan quickly with current configuration
 
 ### 5) Live Session Mode

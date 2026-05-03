@@ -5,7 +5,7 @@ import Link from "next/link";
 import { useMemo, useState } from "react";
 import { RoundView } from "@/components/round-view";
 import { AppShell, Button, Card, Container, StepHeader } from "@/components/ui";
-import { generateSchedule, moveAttendeeInRound, recomputeRepeatedPairs, swapAttendeesInRound } from "@/lib/scheduler";
+import { generateSchedule } from "@/lib/scheduler";
 import { useSessionStore } from "@/store/session";
 
 type RepeatedPairDetail = {
@@ -19,11 +19,9 @@ export default function PlanPage() {
   const config = useSessionStore((s) => s.config);
   const plan = useSessionStore((s) => s.plan);
   const setPlan = useSessionStore((s) => s.setPlan);
-  const updatePlan = useSessionStore((s) => s.updatePlan);
   const currentRoundIndex = useSessionStore((s) => s.currentRoundIndex);
   const setRound = useSessionStore((s) => s.setRound);
   const [showRepeatModal, setShowRepeatModal] = useState(false);
-  const [dragError, setDragError] = useState<string | null>(null);
 
   const currentRound = plan?.rounds[currentRoundIndex];
   const tableCapacities = useMemo(
@@ -85,33 +83,6 @@ export default function PlanPage() {
     );
   }
 
-  const onMoveAttendee = (payload: { attendeeId: string; fromTableId: string; toTableId: string; targetAttendeeId?: string }) => {
-    try {
-      setDragError(null);
-      const updatedRound = payload.targetAttendeeId
-        ? swapAttendeesInRound({
-            round: plan.rounds[currentRoundIndex],
-            sourceAttendeeId: payload.attendeeId,
-            sourceTableId: payload.fromTableId,
-            targetAttendeeId: payload.targetAttendeeId,
-            targetTableId: payload.toTableId,
-            tableCapacities,
-          })
-        : moveAttendeeInRound({
-            round: plan.rounds[currentRoundIndex],
-            attendeeId: payload.attendeeId,
-            fromTableId: payload.fromTableId,
-            toTableId: payload.toTableId,
-            tableCapacities,
-          });
-      const updatedRounds = plan.rounds.map((round, idx) => (idx === currentRoundIndex ? updatedRound : round));
-      const recomputed = recomputeRepeatedPairs(updatedRounds);
-      updatePlan(recomputed);
-    } catch (error) {
-      setDragError(error instanceof Error ? error.message : "Could not move attendee.");
-    }
-  };
-
   return (
     <AppShell>
       <StepHeader
@@ -161,15 +132,7 @@ export default function PlanPage() {
         </Card>
 
         {currentRound ? (
-          <div className="space-y-3">
-            <RoundView
-              round={currentRound}
-              attendees={config.attendees}
-              onMoveAttendee={onMoveAttendee}
-              tableCapacities={tableCapacities}
-            />
-            {dragError ? <p className="text-sm text-red-600">{dragError}</p> : null}
-          </div>
+          <RoundView round={currentRound} attendees={config.attendees} tableCapacities={tableCapacities} />
         ) : null}
       </Container>
 

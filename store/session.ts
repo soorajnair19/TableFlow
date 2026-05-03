@@ -25,7 +25,6 @@ type SessionState = {
   sessionStarted: boolean;
   setConfig: (config: EventConfig) => void;
   setPlan: (plan: SessionPlan) => void;
-  updatePlan: (plan: SessionPlan) => void;
   setSetupAttendees: (attendees: Attendee[]) => void;
   setSetupSession: (partial: Partial<SetupSessionDraft>) => void;
   startSession: () => void;
@@ -62,7 +61,6 @@ export const useSessionStore = create<SessionState>()(
       sessionStarted: false,
       setConfig: (config) => set({ config }),
       setPlan: (plan) => set({ plan, currentRoundIndex: 0, sessionStarted: false }),
-      updatePlan: (plan) => set({ plan }),
       setSetupAttendees: (attendees) =>
         set({
           setupAttendees: attendees,
