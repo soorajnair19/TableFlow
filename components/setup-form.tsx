@@ -27,33 +27,40 @@ export function AttendeesStep() {
   const router = useRouter();
   const config = useSessionStore((s) => s.config);
   const setupAttendees = useSessionStore((s) => s.setupAttendees);
+  const setupAttendeesUserCleared = useSessionStore((s) => s.setupAttendeesUserCleared);
   const setSetupAttendees = useSessionStore((s) => s.setSetupAttendees);
 
   const [manualName, setManualName] = useState("");
   const [pasteNames, setPasteNames] = useState("");
   const [error, setError] = useState<string | null>(null);
 
+  /** Seed Step 1 from last generated `config` only when the list is empty and the user did not explicitly clear it (e.g. "Remove all"). */
   useEffect(() => {
     if (setupAttendees.length > 0) return;
+    if (setupAttendeesUserCleared) return;
     if (config?.attendees?.length) {
       setSetupAttendees(config.attendees);
     }
-  }, [config?.attendees, setSetupAttendees, setupAttendees.length]);
+  }, [config?.attendees, setSetupAttendees, setupAttendees.length, setupAttendeesUserCleared]);
 
   const attendees = setupAttendees;
 
   const addAttendee = (name: string) => {
     const trimmed = name.trim();
     if (!trimmed) return;
-    setSetupAttendees([...attendees, { id: uid(), name: trimmed }]);
+    const prev = useSessionStore.getState().setupAttendees;
+    setSetupAttendees([...prev, { id: uid(), name: trimmed }]);
   };
 
   const parseAndAddNames = (raw: string) => {
-    raw
+    const names = raw
       .split(/[\n,]+/)
       .map((n) => n.trim())
-      .filter(Boolean)
-      .forEach((n) => addAttendee(n));
+      .filter(Boolean);
+    if (names.length === 0) return;
+    const prev = useSessionStore.getState().setupAttendees;
+    const additions = names.map((name) => ({ id: uid(), name }));
+    setSetupAttendees([...prev, ...additions]);
   };
 
   const onCsvUpload = (file: File) => {

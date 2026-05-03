@@ -18,6 +18,8 @@ type SessionState = {
   config: EventConfig | null;
   plan: SessionPlan | null;
   setupAttendees: Attendee[];
+  /** When true, Step 1 list was intentionally emptied — do not re-fill from `config.attendees`. */
+  setupAttendeesUserCleared: boolean;
   setupSession: SetupSessionDraft;
   currentRoundIndex: number;
   sessionStarted: boolean;
@@ -54,13 +56,18 @@ export const useSessionStore = create<SessionState>()(
       config: null,
       plan: null,
       setupAttendees: [],
+      setupAttendeesUserCleared: false,
       setupSession: defaultSetupSession(),
       currentRoundIndex: 0,
       sessionStarted: false,
       setConfig: (config) => set({ config }),
       setPlan: (plan) => set({ plan, currentRoundIndex: 0, sessionStarted: false }),
       updatePlan: (plan) => set({ plan }),
-      setSetupAttendees: (attendees) => set({ setupAttendees: attendees }),
+      setSetupAttendees: (attendees) =>
+        set({
+          setupAttendees: attendees,
+          setupAttendeesUserCleared: attendees.length === 0,
+        }),
       setSetupSession: (partial) =>
         set((state) => ({
           setupSession: { ...state.setupSession, ...partial },
@@ -81,6 +88,7 @@ export const useSessionStore = create<SessionState>()(
           currentRoundIndex: 0,
           sessionStarted: false,
           setupAttendees: [],
+          setupAttendeesUserCleared: false,
           setupSession: defaultSetupSession(),
         }),
     }),
@@ -91,6 +99,7 @@ export const useSessionStore = create<SessionState>()(
         config: state.config,
         plan: state.plan,
         setupAttendees: state.setupAttendees,
+        setupAttendeesUserCleared: state.setupAttendeesUserCleared,
         setupSession: state.setupSession,
         currentRoundIndex: state.currentRoundIndex,
         sessionStarted: state.sessionStarted,
