@@ -4,7 +4,7 @@ import { InfoCircle, Upload01, XClose } from "@untitledui/icons";
 import Papa from "papaparse";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useState, type ReactNode } from "react";
 import { generateSchedule } from "@/lib/scheduler";
 import { EventConfig, Table } from "@/lib/types";
 import { uid } from "@/lib/utils";
@@ -21,6 +21,42 @@ function ensureCustomTables(count: number, prev: Table[]): Table[] {
     capacity: 6,
   }));
   return [...prev, ...additions];
+}
+
+function slotsLabel(n: number) {
+  return n === 1 ? "slot" : "slots";
+}
+
+/** Red when under- or over-allocated vs table seat total; neutral when balanced. */
+function allocationBalanceSuffix(attendeeTotal: number, allocatedSum: number): ReactNode {
+  const overBy = allocatedSum - attendeeTotal;
+  if (overBy > 0) {
+    return (
+      <>
+        {" "}
+        <span className="text-red-600 dark:text-red-400">
+          <strong>{overBy}</strong> {slotsLabel(overBy)} over-allocated.
+        </span>
+      </>
+    );
+  }
+  const left = attendeeTotal - allocatedSum;
+  if (left > 0) {
+    return (
+      <>
+        {" "}
+        <span className="text-red-600 dark:text-red-400">
+          <strong>{left}</strong> {slotsLabel(left)} left to be allocated.
+        </span>
+      </>
+    );
+  }
+  return (
+    <>
+      {" "}
+      <strong>0</strong> slots left to be allocated.
+    </>
+  );
 }
 
 export function AttendeesStep() {
@@ -200,6 +236,11 @@ export function SessionStep() {
     customTables,
   } = setupSession;
 
+  /** Dismiss stale generate errors once the user edits session inputs (error only reset on submit otherwise). */
+  useEffect(() => {
+    setError(null);
+  }, [customTables, useEqual, tableCount, rounds, durationMinutes, repeatAvoidance]);
+
   const attendees = setupAttendees.length > 0 ? setupAttendees : (config?.attendees ?? []);
 
   const syncCustomTables = (nextCount: number) => {
@@ -232,6 +273,8 @@ export function SessionStep() {
   const equalDistributionLine = useMemo(() => {
     const safeTables = Math.max(1, tableCount);
     const attendeeTotal = attendees.length;
+    const allocatedSum = equalDistributionTables.reduce((s, t) => s + Number(t.capacity) || 0, 0);
+    const slotsSuffix = allocationBalanceSuffix(attendeeTotal, allocatedSum);
     const base = Math.floor(attendeeTotal / safeTables);
     const max = Math.ceil(attendeeTotal / safeTables);
 
@@ -248,6 +291,7 @@ export function SessionStep() {
         <p className="text-sm text-neutral-600 dark:text-neutral-400">
           <strong>{attendeeTotal}</strong> attendees equally divided into <strong>{safeTables}</strong> tables:{" "}
           <strong>{base}</strong> attendees per table.
+          {slotsSuffix}
         </p>
       );
     }
@@ -256,9 +300,10 @@ export function SessionStep() {
       <p className="text-sm text-neutral-600 dark:text-neutral-400">
         <strong>{attendeeTotal}</strong> attendees equally divided into <strong>{safeTables}</strong> tables:{" "}
         <strong>~{base}-{max}</strong> attendees per table.
+        {slotsSuffix}
       </p>
     );
-  }, [attendees.length, tableCount]);
+  }, [attendees.length, tableCount, equalDistributionTables]);
 
   const customCapacitySum = useMemo(
     () =>
@@ -440,8 +485,10 @@ export function SessionStep() {
               <>
                 <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50">
                   <p className="text-sm text-neutral-600 dark:text-neutral-400">
-                    <strong>{customCapacitySum}</strong> attendees equally divided into <strong>{tableCount}</strong>{" "}
-                    tables.
+                    <strong>{customCapacitySum}</strong> {customCapacitySum === 1 ? "seat" : "seats"} entered across{" "}
+                    <strong>{tableCount}</strong> {tableCount === 1 ? "table" : "tables"} ·{" "}
+                    <strong>{attendees.length}</strong> {attendees.length === 1 ? "attendee" : "attendees"} listed.
+                    {allocationBalanceSuffix(attendees.length, customCapacitySum)}
                   </p>
                 </div>
                 <div className="space-y-2">
