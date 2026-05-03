@@ -258,6 +258,11 @@ export function SessionStep() {
     );
   }, [attendees.length, tableCount]);
 
+  const customCapacitySum = useMemo(
+    () => customTables.reduce((sum, t) => sum + (Number.isFinite(t.capacity) ? t.capacity : 0), 0),
+    [customTables]
+  );
+
   const onGenerate = () => {
     try {
       setError(null);
@@ -354,7 +359,7 @@ export function SessionStep() {
                     value={level}
                     checked={repeatAvoidance === level}
                     onChange={() => setSetupSession({ repeatAvoidance: level })}
-                    className="size-4 accent-[#001CB5]"
+                    className="size-4 accent-[#2A18EF]"
                   />
                   <span className="capitalize">{level}</span>
                 </label>
@@ -386,7 +391,7 @@ export function SessionStep() {
                   value="equal"
                   checked={useEqual}
                   onChange={() => setSetupSession({ useEqual: true })}
-                  className="size-4 accent-[#001CB5]"
+                  className="size-4 accent-[#2A18EF]"
                 />
                 <span>Equal distribution</span>
               </label>
@@ -402,7 +407,7 @@ export function SessionStep() {
                       prev.length > 0 ? prev : ensureCustomTables(tableCount, []);
                     setSetupSession({ useEqual: false, customTables: nextCustom });
                   }}
-                  className="size-4 accent-[#001CB5]"
+                  className="size-4 accent-[#2A18EF]"
                 />
                 <span>Custom capacities</span>
               </label>
@@ -410,32 +415,40 @@ export function SessionStep() {
             {useEqual ? (
               <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">{equalDistributionLine}</div>
             ) : (
-              <div className="space-y-2">
-                {customTables.map((table, idx) => (
-                  <div className="grid grid-cols-6 gap-2" key={table.id}>
-                    <Input
-                      className="col-span-4"
-                      value={table.name}
-                      onChange={(e) => {
-                        const next = customTables.map((t, i) => (i === idx ? { ...t, name: e.target.value } : t));
-                        setSetupSession({ customTables: next });
-                      }}
-                    />
-                    <Input
-                      className="col-span-2"
-                      type="number"
-                      min={1}
-                      value={table.capacity}
-                      onChange={(e) => {
-                        const next = customTables.map((t, i) =>
-                          i === idx ? { ...t, capacity: Number(e.target.value) || 1 } : t
-                        );
-                        setSetupSession({ customTables: next });
-                      }}
-                    />
-                  </div>
-                ))}
-              </div>
+              <>
+                <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
+                  <p className="text-sm text-neutral-600">
+                    <strong>{customCapacitySum}</strong> attendees equally divided into <strong>{tableCount}</strong>{" "}
+                    tables.
+                  </p>
+                </div>
+                <div className="space-y-2">
+                  {customTables.map((table, idx) => (
+                    <div className="grid grid-cols-6 gap-2" key={table.id}>
+                      <Input
+                        className="col-span-4"
+                        value={table.name}
+                        onChange={(e) => {
+                          const next = customTables.map((t, i) => (i === idx ? { ...t, name: e.target.value } : t));
+                          setSetupSession({ customTables: next });
+                        }}
+                      />
+                      <Input
+                        className="col-span-2"
+                        type="number"
+                        min={1}
+                        value={table.capacity}
+                        onChange={(e) => {
+                          const next = customTables.map((t, i) =>
+                            i === idx ? { ...t, capacity: Number(e.target.value) || 1 } : t
+                          );
+                          setSetupSession({ customTables: next });
+                        }}
+                      />
+                    </div>
+                  ))}
+                </div>
+              </>
             )}
           </div>
 
