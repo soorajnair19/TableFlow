@@ -17,3 +17,33 @@ body {
   color: var(--foreground);
   font-family: var(--font-geist-sans), Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
 }
+
+@layer base {
+  a[href]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  button:not(:disabled),
+  [role="button"]:not([aria-disabled="true"]) {
+    cursor: pointer;
+  }
+
+  button:disabled,
+  [role="button"][aria-disabled="true"] {
+    cursor: not-allowed;
+  }
+
+  label:has(input:is([type="checkbox"], [type="radio"], [type="file"])) {
+    cursor: pointer;
+  }
+
+  input[type="checkbox"]:not(:disabled),
+  input[type="radio"]:not(:disabled),
+  input[type="file"]:not(:disabled) {
+    cursor: pointer;
+  }
+
+  summary {
+    cursor: pointer;
+  }
+}

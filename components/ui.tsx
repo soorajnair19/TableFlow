@@ -124,7 +124,7 @@ export function Button({
   return (
     <button
       className={cn(
-        "inline-flex h-10 items-center justify-center rounded-xl px-4 text-sm font-medium transition",
+        "inline-flex h-10 cursor-pointer items-center justify-center rounded-xl px-4 text-sm font-medium transition disabled:cursor-not-allowed",
         variant === "primary"
           ? "bg-[#2A18EF] text-white hover:bg-[#001CB5]"
           : "border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100",
