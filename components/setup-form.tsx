@@ -151,17 +151,22 @@ export function AttendeesStep() {
           >
             Add Pasted Names
           </Button>
-          <div className="flex gap-2">
-            <Input value={manualName} placeholder="Add attendee name" onChange={(e) => setManualName(e.target.value)} />
-            <Button
-              onClick={() => {
-                addAttendee(manualName);
-                setManualName("");
-              }}
-            >
-              Add
-            </Button>
-          </div>
+          <form
+            className="flex w-full gap-2"
+            onSubmit={(e) => {
+              e.preventDefault();
+              addAttendee(manualName);
+              setManualName("");
+            }}
+          >
+            <Input
+              className="min-w-0 flex-1"
+              value={manualName}
+              placeholder="Add attendee name"
+              onChange={(e) => setManualName(e.target.value)}
+            />
+            <Button type="submit">Add</Button>
+          </form>
           <div className="rounded-xl border border-neutral-200 p-3 dark:border-neutral-700">
             <div className="mb-2 flex items-center justify-between gap-2">
               <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">

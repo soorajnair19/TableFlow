@@ -136,8 +136,8 @@ export function Button({
       className={cn(
         "inline-flex h-10 cursor-pointer items-center justify-center rounded-xl px-4 text-sm font-medium transition disabled:cursor-not-allowed",
         variant === "primary"
-          ? "bg-[#2A18EF] text-white hover:bg-[#001CB5]"
-          : "border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800",
+          ? "bg-[#2A18EF] text-white hover:bg-[#001CB5] disabled:bg-neutral-200 disabled:text-neutral-500 disabled:hover:bg-neutral-200 dark:disabled:bg-neutral-800 dark:disabled:text-neutral-500 dark:disabled:hover:bg-neutral-800"
+          : "border border-neutral-300 bg-white text-neutral-900 hover:bg-neutral-100 disabled:border-neutral-200 disabled:bg-neutral-50 disabled:text-neutral-400 disabled:hover:bg-neutral-50 dark:border-neutral-600 dark:bg-neutral-900 dark:text-neutral-100 dark:hover:bg-neutral-800 dark:disabled:border-neutral-700 dark:disabled:bg-neutral-900 dark:disabled:text-neutral-600 dark:disabled:hover:bg-neutral-900",
         className
       )}
       {...props}
