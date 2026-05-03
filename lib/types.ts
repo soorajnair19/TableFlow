@@ -8,7 +8,8 @@ export interface Attendee {
 export interface Table {
   id: string;
   name: string;
-  capacity: number;
+  /** Draft UI may use `""` while editing custom capacities; persist / schedule with a positive number. */
+  capacity: number | "";
 }
 
 export interface EventConfig {

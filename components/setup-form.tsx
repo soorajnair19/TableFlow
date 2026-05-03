@@ -259,7 +259,12 @@ export function SessionStep() {
   }, [attendees.length, tableCount]);
 
   const customCapacitySum = useMemo(
-    () => customTables.reduce((sum, t) => sum + (Number.isFinite(t.capacity) ? t.capacity : 0), 0),
+    () =>
+      customTables.reduce((sum, t) => {
+        if (t.capacity === "") return sum;
+        const n = Number(t.capacity);
+        return sum + (Number.isFinite(n) && n >= 0 ? n : 0);
+      }, 0),
     [customTables]
   );
 
@@ -269,7 +274,20 @@ export function SessionStep() {
       if (attendees.length === 0) {
         throw new Error("Add at least one attendee in the previous step.");
       }
-      const tables = useEqual ? computedTables : customTables;
+      let tables: Table[];
+      let customTablesForPrefs: Table[];
+      if (useEqual) {
+        tables = computedTables;
+        customTablesForPrefs = customTables;
+      } else {
+        tables = customTables.map((t) => {
+          if (t.capacity === "" || !Number.isFinite(Number(t.capacity)) || Number(t.capacity) < 1) {
+            throw new Error("Enter a seat count (at least 1) for every table.");
+          }
+          return { ...t, capacity: Number(t.capacity) };
+        });
+        customTablesForPrefs = tables;
+      }
       const eventConfig: EventConfig = {
         attendees,
         tables,
@@ -279,7 +297,7 @@ export function SessionStep() {
         uiPreferences: {
           useEqual,
           tableCount,
-          customTables,
+          customTables: customTablesForPrefs,
         },
       };
       const plan = generateSchedule(eventConfig);
@@ -436,12 +454,13 @@ export function SessionStep() {
                       <Input
                         className="col-span-2"
                         type="number"
-                        min={1}
-                        value={table.capacity}
+                        min={0}
+                        value={table.capacity === "" ? "" : table.capacity}
                         onChange={(e) => {
-                          const next = customTables.map((t, i) =>
-                            i === idx ? { ...t, capacity: Number(e.target.value) || 1 } : t
-                          );
+                          const raw = e.target.value;
+                          const capacity: number | "" =
+                            raw === "" ? "" : Number.isNaN(Number(raw)) ? "" : Number(raw);
+                          const next = customTables.map((t, i) => (i === idx ? { ...t, capacity } : t));
                           setSetupSession({ customTables: next });
                         }}
                       />

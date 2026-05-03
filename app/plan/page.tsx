@@ -6,6 +6,7 @@ import { useMemo, useState } from "react";
 import { RoundView } from "@/components/round-view";
 import { AppShell, Button, Card, Container, StepHeader } from "@/components/ui";
 import { generateSchedule } from "@/lib/scheduler";
+import type { Table } from "@/lib/types";
 import { useSessionStore } from "@/store/session";
 
 type RepeatedPairDetail = {
@@ -24,10 +25,13 @@ export default function PlanPage() {
   const [showRepeatModal, setShowRepeatModal] = useState(false);
 
   const currentRound = plan?.rounds[currentRoundIndex];
-  const tableCapacities = useMemo(
-    () => Object.fromEntries((config?.tables ?? []).map((table) => [table.id, table.capacity])),
-    [config?.tables]
-  );
+  const tableCapacities = useMemo(() => {
+    const cap = (c: Table["capacity"]) => (c === "" ? 0 : Number.isFinite(Number(c)) ? Number(c) : 0);
+    return Object.fromEntries((config?.tables ?? []).map((table) => [table.id, cap(table.capacity)])) as Record<
+      string,
+      number
+    >;
+  }, [config?.tables]);
   const repeatedPairDetails = useMemo<RepeatedPairDetail[]>(() => {
     if (!plan) return [];
     const attendeeNameById = new Map(config?.attendees.map((attendee) => [attendee.id, attendee.name]) ?? []);

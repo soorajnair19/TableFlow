@@ -1,4 +1,4 @@
-import { EventConfig, RoundPlan, SessionPlan } from "@/lib/types";
+import { EventConfig, RoundPlan, SessionPlan, Table } from "@/lib/types";
 
 type PairKey = string;
 
@@ -63,8 +63,15 @@ function assignRound(
   return { tables, repeatedPairs };
 }
 
+function resolvedSeatCapacity(capacity: Table["capacity"]): number {
+  if (capacity === "") return 0;
+  const n = Math.floor(Number(capacity));
+  return Number.isFinite(n) && n >= 0 ? n : 0;
+}
+
 export function generateSchedule(config: EventConfig): SessionPlan {
-  const totalCapacity = config.tables.reduce((sum, table) => sum + table.capacity, 0);
+  const tableSizes = config.tables.map((t) => resolvedSeatCapacity(t.capacity));
+  const totalCapacity = tableSizes.reduce((sum, cap) => sum + cap, 0);
   if (config.attendees.length === 0) {
     throw new Error("Add at least one attendee.");
   }
@@ -76,7 +83,6 @@ export function generateSchedule(config: EventConfig): SessionPlan {
   }
 
   const pairCounts = new Map<PairKey, number>();
-  const tableSizes = config.tables.map((t) => t.capacity);
   const attendeeIds = config.attendees.map((a) => a.id);
   const weight = repeatPenaltyWeight[config.repeatAvoidance];
 
