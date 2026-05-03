@@ -19,7 +19,7 @@ export function RoundView({
           <h3 className="text-base font-semibold">
             {table.tableName}
             {tableCapacities?.[table.tableId] ? (
-              <span className="ml-2 text-sm font-medium text-neutral-500">
+              <span className="ml-2 text-sm font-medium text-neutral-500 dark:text-neutral-400">
                 [{table.attendeeIds.length}/{tableCapacities[table.tableId]}]
               </span>
             ) : null}
@@ -28,7 +28,7 @@ export function RoundView({
             {table.attendeeIds.map((attendeeId) => (
               <div
                 key={attendeeId}
-                className="flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm"
+                className="flex items-center gap-2 rounded-lg border border-neutral-200 px-3 py-2 text-sm dark:border-neutral-700"
               >
                 {attendeeById.get(attendeeId) ?? attendeeId}
               </div>

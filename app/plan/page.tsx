@@ -77,8 +77,8 @@ export default function PlanPage() {
       <AppShell>
         <Container>
           <Card>
-            <p className="text-sm text-neutral-600">No plan generated yet.</p>
-            <Link href="/attendees" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline">
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">No plan generated yet.</p>
+            <Link href="/attendees" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline dark:text-neutral-100">
               Back to setup
             </Link>
           </Card>
@@ -102,16 +102,17 @@ export default function PlanPage() {
       <Container className="space-y-6 pt-44 pb-8">
 
         <Card className="space-y-3">
-          <div className="flex items-center gap-1 text-sm text-neutral-600">
+          <div className="flex items-center gap-1 text-sm text-neutral-600 dark:text-neutral-400">
             <p>
-              Total repeated pairs: <span className="font-semibold text-neutral-900">{plan.totalRepeatedPairs}</span>
+              Total repeated pairs:{" "}
+              <span className="font-semibold text-neutral-900 dark:text-neutral-100">{plan.totalRepeatedPairs}</span>
             </p>
             <button
               type="button"
               aria-label="View repeated pair details"
               title="View repeated pair details"
               onClick={() => setShowRepeatModal(true)}
-              className="rounded-full p-1 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800"
+              className="rounded-full p-1 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
             >
               <InfoCircle className="size-4" />
             </button>
@@ -141,14 +142,14 @@ export default function PlanPage() {
       </Container>
 
       {showRepeatModal ? (
-        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4">
-          <div className="w-full max-w-3xl rounded-2xl border border-neutral-200 bg-white p-5 shadow-xl">
+        <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/40 p-4 dark:bg-black/60">
+          <div className="w-full max-w-3xl rounded-2xl border border-neutral-200 bg-white p-5 shadow-xl dark:border-neutral-700 dark:bg-neutral-900">
             <div className="mb-4 flex items-center justify-between">
-              <h3 className="text-lg font-semibold">Repeated Pairs</h3>
+              <h3 className="text-lg font-semibold dark:text-neutral-100">Repeated Pairs</h3>
               <button
                 type="button"
                 onClick={() => setShowRepeatModal(false)}
-                className="rounded-full p-1 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800"
+                className="rounded-full p-1 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
                 aria-label="Close repeated pairs modal"
               >
                 <XClose className="size-5" />
@@ -156,11 +157,11 @@ export default function PlanPage() {
             </div>
 
             {repeatedPairDetails.length === 0 ? (
-              <p className="text-sm text-neutral-600">No repeated pairs found.</p>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">No repeated pairs found.</p>
             ) : (
-              <div className="max-h-[60vh] overflow-auto rounded-xl border border-neutral-200">
+              <div className="max-h-[60vh] overflow-auto rounded-xl border border-neutral-200 dark:border-neutral-700">
                 <table className="w-full border-collapse text-left text-sm">
-                  <thead className="sticky top-0 bg-neutral-50 text-neutral-600">
+                  <thead className="sticky top-0 bg-neutral-50 text-neutral-600 dark:bg-neutral-800 dark:text-neutral-400">
                     <tr>
                       <th className="px-4 py-3 font-medium">Repetition</th>
                       <th className="px-4 py-3 font-medium">Attendee Pair</th>
@@ -169,7 +170,7 @@ export default function PlanPage() {
                   </thead>
                   <tbody>
                     {repeatedPairDetails.map((item) => (
-                      <tr key={item.key} className="border-t border-neutral-200">
+                      <tr key={item.key} className="border-t border-neutral-200 dark:border-neutral-700 dark:text-neutral-200">
                         <td className="px-4 py-3">{item.repetition}</td>
                         <td className="px-4 py-3">{item.attendeePair}</td>
                         <td className="px-4 py-3">{item.metBefore}</td>

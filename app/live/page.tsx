@@ -3,6 +3,7 @@
 import Link from "next/link";
 import { useEffect, useMemo, useState } from "react";
 import { RoundView } from "@/components/round-view";
+import { ThemeToggle } from "@/components/theme-toggle";
 import { AppShell, Button, Card, Container } from "@/components/ui";
 import { useSessionStore } from "@/store/session";
 
@@ -27,8 +28,8 @@ export default function LivePage() {
       <AppShell>
         <Container>
           <Card>
-            <p className="text-sm text-neutral-600">Live mode needs a generated plan first.</p>
-            <Link href="/attendees" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline">
+            <p className="text-sm text-neutral-600 dark:text-neutral-400">Live mode needs a generated plan first.</p>
+            <Link href="/attendees" className="mt-3 inline-block text-sm font-medium text-neutral-900 underline dark:text-neutral-100">
               Back to setup
             </Link>
           </Card>
@@ -41,7 +42,8 @@ export default function LivePage() {
     <AppShell>
       <Container className="space-y-5 pt-6 pb-6">
         <Card className="flex flex-wrap items-center justify-between gap-3">
-          <div className="flex flex-wrap gap-2">
+          <div className="flex flex-wrap items-center gap-2">
+            <ThemeToggle inline />
             {plan.rounds.map((round, idx) => (
               <Button key={round.id} variant={idx === currentRoundIndex ? "primary" : "secondary"} onClick={() => setRound(idx)}>
                 Round {round.index}
@@ -73,7 +75,7 @@ function TimerControls({ initialSeconds }: { initialSeconds: number }) {
     <div className="flex items-center gap-2">
       <p
         className={`min-w-20 text-right text-2xl font-semibold tabular-nums ${
-          secondsLeft <= 60 ? "text-red-600" : "text-neutral-900"
+          secondsLeft <= 60 ? "text-red-600" : "text-neutral-900 dark:text-neutral-100"
         }`}
       >
         {formatTimer(secondsLeft)}

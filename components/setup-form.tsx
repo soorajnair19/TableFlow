@@ -83,7 +83,7 @@ export function AttendeesStep() {
     <Card>
       <SectionTitle title={`Attendees (${attendees.length})`} subtitle="CSV upload, paste names, or add manually." />
       <div className="space-y-3">
-          <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 px-4 py-6 text-sm text-neutral-600 hover:bg-neutral-50">
+          <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-dashed border-neutral-300 px-4 py-6 text-sm text-neutral-600 hover:bg-neutral-50 dark:border-neutral-600 dark:text-neutral-400 dark:hover:bg-neutral-900">
             <Upload01 className="size-4" />
             Upload CSV
             <input
@@ -94,9 +94,11 @@ export function AttendeesStep() {
             />
           </label>
           <div className="flex items-center gap-3">
-            <div className="h-px flex-1 bg-neutral-200" />
-            <span className="text-xs font-semibold uppercase tracking-wide text-neutral-400">OR</span>
-            <div className="h-px flex-1 bg-neutral-200" />
+            <div className="h-px flex-1 bg-neutral-200 dark:bg-neutral-700" />
+            <span className="text-xs font-semibold uppercase tracking-wide text-neutral-400 dark:text-neutral-500">
+              OR
+            </span>
+            <div className="h-px flex-1 bg-neutral-200 dark:bg-neutral-700" />
           </div>
           <Textarea
             value={pasteNames}
@@ -124,16 +126,16 @@ export function AttendeesStep() {
               Add
             </Button>
           </div>
-          <div className="rounded-xl border border-neutral-200 p-3">
+          <div className="rounded-xl border border-neutral-200 p-3 dark:border-neutral-700">
             <div className="mb-2 flex items-center justify-between gap-2">
-              <p className="text-xs font-medium text-neutral-500">
-                <strong className="text-neutral-800">{attendees.length}</strong> attendees
+              <p className="text-xs font-medium text-neutral-500 dark:text-neutral-400">
+                <strong className="text-neutral-800 dark:text-neutral-200">{attendees.length}</strong> attendees
               </p>
               <button
                 type="button"
                 onClick={() => setSetupAttendees([])}
                 disabled={attendees.length === 0}
-                className="text-xs font-medium text-neutral-500 underline-offset-2 transition hover:text-neutral-800 hover:underline disabled:cursor-not-allowed disabled:opacity-50"
+                className="text-xs font-medium text-neutral-500 underline-offset-2 transition hover:text-neutral-800 hover:underline disabled:cursor-not-allowed disabled:opacity-50 dark:hover:text-neutral-200"
               >
                 Remove all
               </button>
@@ -142,13 +144,13 @@ export function AttendeesStep() {
               {attendees.map((attendee) => (
                 <div
                   key={attendee.id}
-                  className="inline-flex items-center gap-2 rounded-full border border-neutral-200 px-3 py-1 text-xs"
+                  className="inline-flex items-center gap-2 rounded-full border border-neutral-200 px-3 py-1 text-xs dark:border-neutral-600"
                 >
                   <span>{attendee.name}</span>
                   <button
                     type="button"
                     onClick={() => setSetupAttendees(attendees.filter((a) => a.id !== attendee.id))}
-                    className="rounded-full p-0.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800"
+                    className="rounded-full p-0.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
                     aria-label={`Remove ${attendee.name}`}
                     title={`Remove ${attendee.name}`}
                   >
@@ -235,7 +237,7 @@ export function SessionStep() {
 
     if (attendeeTotal === 0) {
       return (
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
           Add attendees to preview equal distribution across <strong>{safeTables}</strong> tables.
         </p>
       );
@@ -243,7 +245,7 @@ export function SessionStep() {
 
     if (attendeeTotal % safeTables === 0) {
       return (
-        <p className="text-sm text-neutral-600">
+        <p className="text-sm text-neutral-600 dark:text-neutral-400">
           <strong>{attendeeTotal}</strong> attendees equally divided into <strong>{safeTables}</strong> tables:{" "}
           <strong>{base}</strong> attendees per table.
         </p>
@@ -251,7 +253,7 @@ export function SessionStep() {
     }
 
     return (
-      <p className="text-sm text-neutral-600">
+      <p className="text-sm text-neutral-600 dark:text-neutral-400">
         <strong>{attendeeTotal}</strong> attendees equally divided into <strong>{safeTables}</strong> tables:{" "}
         <strong>~{base}-{max}</strong> attendees per table.
       </p>
@@ -315,7 +317,7 @@ export function SessionStep() {
       <div className="space-y-4">
           <div className="grid grid-cols-1 gap-3 md:grid-cols-3">
             <div>
-              <p className="mb-1 text-sm text-neutral-600">Tables</p>
+              <p className="mb-1 text-sm text-neutral-600 dark:text-neutral-400">Tables</p>
               <Input
                 type="number"
                 min={1}
@@ -329,7 +331,7 @@ export function SessionStep() {
               />
             </div>
             <div>
-              <p className="mb-1 text-sm text-neutral-600">Networking Rounds</p>
+              <p className="mb-1 text-sm text-neutral-600 dark:text-neutral-400">Networking Rounds</p>
               <Input
                 type="number"
                 min={1}
@@ -339,7 +341,7 @@ export function SessionStep() {
               />
             </div>
             <div>
-              <p className="mb-1 text-sm text-neutral-600">Round Duration (min)</p>
+              <p className="mb-1 text-sm text-neutral-600 dark:text-neutral-400">Round Duration (min)</p>
               <Input
                 type="number"
                 min={1}
@@ -351,16 +353,16 @@ export function SessionStep() {
 
           <div>
             <div className="mb-1 flex items-center gap-1">
-              <p className="text-sm text-neutral-600">Repeat Avoidance</p>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">Repeat Avoidance</p>
               <div className="group relative inline-flex">
                 <button
                   type="button"
-                  className="rounded-full p-0.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800"
+                  className="rounded-full p-0.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
                   aria-label="Repeat Avoidance info"
                 >
                   <InfoCircle className="size-4" />
                 </button>
-                <div className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-72 -translate-x-1/2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-600 opacity-0 shadow-sm transition group-hover:opacity-100">
+                <div className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-72 -translate-x-1/2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-600 opacity-0 shadow-sm transition group-hover:opacity-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
                   Controls how strongly scheduling avoids repeating the same attendee pairs across rounds.
                 </div>
               </div>
@@ -369,7 +371,7 @@ export function SessionStep() {
               {(["low", "medium", "high"] as const).map((level) => (
                 <label
                   key={level}
-                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800"
+                  className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 transition-colors [&:has(input:checked)]:border-[#2A18EF] dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-200 dark:[&:has(input:checked)]:border-[#A7B0FF]"
                 >
                   <input
                     type="radio"
@@ -387,22 +389,22 @@ export function SessionStep() {
 
           <div className="space-y-2">
             <div className="flex items-center gap-1">
-              <p className="text-sm text-neutral-600">Distribution</p>
+              <p className="text-sm text-neutral-600 dark:text-neutral-400">Distribution</p>
               <div className="group relative inline-flex">
                 <button
                   type="button"
-                  className="rounded-full p-0.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800"
+                  className="rounded-full p-0.5 text-neutral-500 transition hover:bg-neutral-100 hover:text-neutral-800 dark:hover:bg-neutral-800 dark:hover:text-neutral-200"
                   aria-label="Distribution info"
                 >
                   <InfoCircle className="size-4" />
                 </button>
-                <div className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-72 -translate-x-1/2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-600 opacity-0 shadow-sm transition group-hover:opacity-100">
+                <div className="pointer-events-none absolute left-1/2 top-full z-10 mt-2 w-72 -translate-x-1/2 rounded-lg border border-neutral-200 bg-white px-3 py-2 text-xs text-neutral-600 opacity-0 shadow-sm transition group-hover:opacity-100 dark:border-neutral-700 dark:bg-neutral-900 dark:text-neutral-400">
                   Choose attendee distribution mode: equal split across all tables or fully custom capacities.
                 </div>
               </div>
             </div>
             <div className="flex flex-wrap gap-2">
-              <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 transition-colors [&:has(input:checked)]:border-[#2A18EF] dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-200 dark:[&:has(input:checked)]:border-[#A7B0FF]">
                 <input
                   type="radio"
                   name="distribution-mode"
@@ -413,7 +415,7 @@ export function SessionStep() {
                 />
                 <span>Equal distribution</span>
               </label>
-              <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800">
+              <label className="inline-flex cursor-pointer items-center gap-2 rounded-xl border border-neutral-300 bg-white px-3 py-2 text-sm text-neutral-800 transition-colors [&:has(input:checked)]:border-[#2A18EF] dark:border-neutral-600 dark:bg-neutral-950 dark:text-neutral-200 dark:[&:has(input:checked)]:border-[#A7B0FF]">
                 <input
                   type="radio"
                   name="distribution-mode"
@@ -431,11 +433,13 @@ export function SessionStep() {
               </label>
             </div>
             {useEqual ? (
-              <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">{equalDistributionLine}</div>
+              <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50">
+                {equalDistributionLine}
+              </div>
             ) : (
               <>
-                <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3">
-                  <p className="text-sm text-neutral-600">
+                <div className="rounded-xl border border-neutral-200 bg-neutral-50 p-3 dark:border-neutral-700 dark:bg-neutral-900/50">
+                  <p className="text-sm text-neutral-600 dark:text-neutral-400">
                     <strong>{customCapacitySum}</strong> attendees equally divided into <strong>{tableCount}</strong>{" "}
                     tables.
                   </p>
