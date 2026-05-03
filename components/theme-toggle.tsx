@@ -53,7 +53,7 @@ export function ThemeToggle({ inline = false }: { inline?: boolean }) {
   }, []);
 
   const isDark = theme === "dark";
-  if (!inline && pathname === "/live") return null;
+  if (!inline && (pathname === "/" || pathname === "/live")) return null;
 
   return (
     <button
