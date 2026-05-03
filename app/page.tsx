@@ -29,7 +29,9 @@ export default function Home() {
               TableFlow
             </p>
             <h1 className="max-w-5xl text-5xl font-semibold leading-[1.05] tracking-tight text-neutral-900 sm:text-6xl dark:text-neutral-50">
-              Stop running networking sessions
+              Stop running
+              <br />
+              networking sessions
               <br />
               on spreadsheets
             </h1>
